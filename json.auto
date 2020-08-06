@@ -1,0 +1,7 @@
+Endpoint localhost:9000/login
+
+Models:
+Name string name;
+Age int age;
+ID int id;
+Password string password;
