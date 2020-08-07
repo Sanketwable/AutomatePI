@@ -2,7 +2,6 @@
 	package routes
 
 import (
-	"api/controllers"
 	"net/http"
 )
 
