@@ -1,4 +1,4 @@
-module api
+module automatepi
 
 go 1.13
 

@@ -1,36 +1,44 @@
 package filecontent
 
 //Maincontent is a variable
-var Maincontent = []byte(`package main
+var Maincontent = []byte(
+`package main
+
 import (
-	"api/server"
-	"fmt")
+	"automatepi/server"
+)
+
 func main() {
-	fmt.Println("server starting")
 	server.Run()
 }`)
 
 // GomodContent is a variable
 var GomodContent = []byte(`
-module api
+module automatepi
 
 go 1.13
 `)
 
 //ServerContent is a func
 var ServerContent = []byte(
-	`
-	package server
+`
+package server
 
 import (
-	"api/router"
+	"automatepi/auto"
+	"automatepi/config"
+	"automatepi/router"
 	"fmt"
 	"log"
 	"net/http"
 )
 
 func Run () {
-	Listen(9000)
+	config.Load()
+	auto.Load()
+	fmt.Printf("\n\tListening.......[::]:%d \n", config.PORT)
+
+	Listen(config.PORT)
 }
 
 func Listen(port int) {
@@ -39,15 +47,16 @@ func Listen(port int) {
 	if err != nil {
 		log.Fatal("error is : ", err)
 	}
-}`)
+}
+`)
 
 //RouterContent is a func
 var RouterContent = []byte(
-	`
-	package router
+`
+package router
 
 import (
-	"api/router/routes"
+	"automatepi/router/routes"
 
 	"github.com/gorilla/mux"
 )
@@ -60,11 +69,11 @@ func New() *mux.Router {
 
 //RoutesContent is a func
 var RoutesContent = []byte(
-	`
-	package routes
+`
+package routes
 
 import (
-	"api/middlewares"
+	"automatepi/middlewares"
 	"net/http"
 	"github.com/gorilla/mux"
 )
@@ -80,6 +89,7 @@ type Route struct {
 // Load is  a func
 func Load() []Route {
 	routes := usersRoutes
+
 	return routes
 }
 
@@ -111,10 +121,11 @@ func SetUpRoutesWithMiddlewares (r *mux.Router) *mux.Router {
 
 //UserRoutesContent is a func
 var UserRoutesContent = []byte(
-	`
-	package routes
+`
+package routes
 
 import (
+	"automatepi/controllers"
 	"net/http"
 )
 
@@ -122,297 +133,275 @@ var usersRoutes = []Route {
 	 {
 		Uri: "/users",
 		Method: http.MethodGet,
-		Handler: nil,
+		Handler: controllers.GetUsers,
 		AuthRequired: false,
 	},
 	{
 		Uri: "/users",
 		Method: http.MethodPost ,
-		Handler: nil,
+		Handler: controllers.CreateUser,
 		AuthRequired: false,
 	},
 	{
 		Uri: "/users/{id}",
 		Method: http.MethodGet,
-		Handler: nil,
+		Handler: controllers.GetUser,
 		AuthRequired: false,
 	},
 	{
 		Uri: "/users/{id}",
 		Method: http.MethodPut,
-		Handler: nil,
+		Handler: controllers.UpdateUser,
 		AuthRequired: true,
 	},
 	{
 		Uri: "/users/{id}",
 		Method: http.MethodDelete,
-		Handler: nil,
+		Handler: controllers.DeleteUser,
 		AuthRequired: true,
 	},
 }`)
 
 //MiddlwaresContent is a func
 var MiddlewaresContent = []byte(
-	`package middlewares
+`
+package middlewares
 
-	import (
-		"api/auth"
-		"api/responses"
-		//"api/utils/console"
-		"log"
-		"net/http"
-	)
-	
-	func SetMiddlewareLogger(next http.HandlerFunc) http.HandlerFunc {
-		return func (w http.ResponseWriter, r *http.Request)  {
-			log.Printf("\n%s %s%s %s",r.Method, r.Host, r.RequestURI, r.Proto)
-			next (w, r)
-		}
+import (
+	"automatepi/auth"
+	"automatepi/responses"
+	//"automatepi/utils/console"
+	"log"
+	"net/http"
+)
+
+func SetMiddlewareLogger(next http.HandlerFunc) http.HandlerFunc {
+	return func (w http.ResponseWriter, r *http.Request)  {
+		log.Printf("\n%s %s%s %s",r.Method, r.Host, r.RequestURI, r.Proto)
+		next (w, r)
 	}
-	
-	func SetMiddlewareJSON(next http.HandlerFunc) http.HandlerFunc {
-		return func (w http.ResponseWriter, r *http.Request)  {
-			w.Header().Set("Content-Type", "application/json")
-			next (w, r)
-		}
+}
+
+func SetMiddlewareJSON(next http.HandlerFunc) http.HandlerFunc {
+	return func (w http.ResponseWriter, r *http.Request)  {
+		w.Header().Set("Content-Type", "application/json")
+		next (w, r)
 	}
-	
-	func SetMiddlewareAuthentication(next http.HandlerFunc) http.HandlerFunc {
-		return func (w http.ResponseWriter, r *http.Request)  {
-			err := auth.TokenValid(r)
-			if err != nil {
-				responses.ERROR(w, http.StatusUnauthorized, err)
-				return
-			} 
-			next (w, r)
-		}
-	}`)
+}
+
+func SetMiddlewareAuthentication(next http.HandlerFunc) http.HandlerFunc {
+	return func (w http.ResponseWriter, r *http.Request)  {
+		err := auth.TokenValid(r)
+		if err != nil {
+			responses.ERROR(w, http.StatusUnauthorized, err)
+			return
+		} 
+		next (w, r)
+	}
+}`)
 
 	//AuthContent is a variable
-	var AuthContent = []byte(
-		`package auth
+var AuthContent = []byte(
+`package auth
 
-		import (
-			"api/database"
-			"api/models"
-			"api/security"
-			"api/utils/channels"
-			"github.com/jinzhu/gorm"
-		)
-		
-		//SignIn is func
-		func SignIn(email, password string) (string, error) {
-			user := models.User{}
-			var err error
-			var db *gorm.DB
-			done := make(chan bool)
-		
-			go func(ch chan<- bool) {
-				defer close(ch)
-				db, err = database.Connect()
-				if err != nil {
-					ch <- false
-					return
-				}
-				defer db.Close()
-		
-		
-		
-				err = db.Debug().Model(models.User{}).Where("email = ?", email).Take(&user).Error
-				if err != nil {
-					ch <- false
-					return
-				}
-				err = security.VerifyPassword(user.Password, password)
-				if err != nil {
-					ch <- false
-					return
-				}
-				ch <- true
-			}(done)
-		
-			if channels.OK(done) {
-				return CreateToken(user.ID)
-			}
-			return "", err
-		
-		}`)
-	//TokenContent is a variable
-	var TokenContent = []byte(
-		`package auth
+import (
+	"automatepi/database"
+	"automatepi/models"
+	"automatepi/security"
+	"automatepi/utils/channels"
+	"github.com/jinzhu/gorm"
+)
 
-		import (
-			"api/config"
-			"api/utils/console"
-			"fmt"
-			"net/http"
-			//"reflect"
-			"strconv"
-		
-			//"strconv"
-			"strings"
-			"time"
-		
-			"github.com/dgrijalva/jwt-go"
-		)
-		
-		
-		func CreateToken (user_id uint32) (string, error) {
-			claims := jwt.MapClaims{}
-			claims["authorized"] = true
-			claims["user_id"] = user_id
-			claims["exp"] = time.Now().Add(time.Hour * 100).Unix()
-			token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-			return token.SignedString(config.SECRETKEY)
+//SignIn is func
+func SignIn(email, password string) (string, error) {
+	user := models.User{}
+	var err error
+	var db *gorm.DB
+	done := make(chan bool)
+
+	go func(ch chan<- bool) {
+		defer close(ch)
+		db, err = database.Connect()
+		if err != nil {
+			ch <- false
+			return
 		}
-		
-		func TokenValid(r *http.Request ) error {
-			tokenString := ExtractToken(r)
-			token, err := jwt.Parse(tokenString, func(token *jwt.Token)(interface{}, error) {
-				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-					return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-				}
-				return config.SECRETKEY, nil
-			})
-		
-			if err != nil {
-				return err
-			}
-			if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-				console.Pretty(claims)
-			}
-			return nil
+		defer db.Close()
+
+
+
+		err = db.Debug().Model(models.User{}).Where("email = ?", email).Take(&user).Error
+		if err != nil {
+			ch <- false
+			return
 		}
-		
-		func ExtractToken(r *http.Request) string {
-			keys := r.URL.Query()
-			token := keys.Get("token")
-			if token != "" {
-				return token
-			}
-			bearerToken := r.Header.Get("Authorization")
-		
-			if len(strings.Split(bearerToken, " ")) == 2 {
-				return strings.Split(bearerToken, " ")[1]
-			}
-			return ""
-		
+		err = security.VerifyPassword(user.Password, password)
+		if err != nil {
+			ch <- false
+			return
 		}
-		
-		func ExtractTokenID(r *http.Request) (uint32, error) {
-			tokenString := ExtractToken(r)
-			token, err := jwt.Parse(tokenString, func(token *jwt.Token)(interface{}, error) {
-				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-					return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-				}
-				return config.SECRETKEY, nil
-			})
-		
-			if err != nil {
-				return 0, err
-			}
-			claims, ok := token.Claims.(jwt.MapClaims)
-			if ok && token.Valid {
-				uid, err := strconv.ParseUint(fmt.Sprintf("%.0f", claims["user_id"]), 10, 32)
-				if err != nil {
-					return 0, err
-				}
-					
-					return uint32(uid), nil
-			}
-			return 0, nil
-		}`)
+		ch <- true
+	}(done)
+
+	if channels.OK(done) {
+		return CreateToken(user.ID)
+	}
+	return "", err
+
+}`)
+//TokenContent is a variable
+var TokenContent = []byte(
+`
+package auth
+
+import (
+	"automatepi/config"
+	"automatepi/utils/console"
+	"fmt"
+	"net/http"
+	//"reflect"
+	"strconv"
+
+	//"strconv"
+	"strings"
+	"time"
+
+	"github.com/dgrijalva/jwt-go"
+)
+
+
+func CreateToken (user_id uint32) (string, error) {
+	claims := jwt.MapClaims{}
+	claims["authorized"] = true
+	claims["user_id"] = user_id
+	claims["exp"] = time.Now().Add(time.Hour * 100).Unix()
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(config.SECRETKEY)
+}
+
+func TokenValid(r *http.Request ) error {
+	tokenString := ExtractToken(r)
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token)(interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+		return config.SECRETKEY, nil
+	})
+
+	if err != nil {
+		return err
+	}
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		console.Pretty(claims)
+	}
+	return nil
+}
+
+func ExtractToken(r *http.Request) string {
+	keys := r.URL.Query()
+	token := keys.Get("token")
+	if token != "" {
+		return token
+	}
+	bearerToken := r.Header.Get("Authorization")
+
+	if len(strings.Split(bearerToken, " ")) == 2 {
+		return strings.Split(bearerToken, " ")[1]
+	}
+	return ""
+
+}
+
+func ExtractTokenID(r *http.Request) (uint32, error) {
+	tokenString := ExtractToken(r)
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token)(interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+		return config.SECRETKEY, nil
+	})
+
+	if err != nil {
+		return 0, err
+	}
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if ok && token.Valid {
+		uid, err := strconv.ParseUint(fmt.Sprintf("%.0f", claims["user_id"]), 10, 32)
+		if err != nil {
+			return 0, err
+		}
+			
+			return uint32(uid), nil
+	}
+	return 0, nil
+}`)
 
 	//DataContent is a var
-	var DataContent = []byte(
-		`package auto
+var DataContent = []byte(
+`
+package auto
 
-		import "api/models"
-		
-		var users = []models.User{
-			{
-				UserName: "sanket",
-				Email: "sanketwable312@gmail.com",
-				Password: "SanketWable@123",
-			},
-		}
-		
-		var posts = []models.Post {
-			{
-				Name: "Sanket",
-				AboutMe: "I m pandit",
-				Age: 11,
-				YearsOfExperience: 3,
-				Education: "NITh cse",
-				DetailsOnVidya: "No detail",
-			},
-		}`)
+import "automatepi/models"
 
-	//LoadContent is a var
-	var LoadContent = []byte(
-		`package auto
+var users = []models.User{
+	{
+		UserName: "sanket",
+		Email: "sanketwable312@gmail.com",
+		Password: "SanketWable@123",
+	},
 
-		import (
-			"api/database"
-			"api/models"
-			//"api/utils/console"
-			"log"
-		)
-		//Load is
-		func Load()  {
-			db, err := database.Connect()
-			if err != nil {
-				log.Fatal("this is an error :", err)
-			}
-			defer db.Close()
-		
-			// err = db.Debug().DropTableIfExists(&models.User{}, &models.Post{}, &models.ExpertiseService{}, &models.PujaService{}, &models.OtherserviceService{}, models.PujaServiceDuration{}, models.PujaServicePrice{}, models.Availability{}, models.DateTime{}, models.Verification{}).Error
-			// if err != nil {
-			// 	log.Fatal("this is an error :", err)
-			// }
-		
-			err = db.Debug().AutoMigrate(&models.User{}, &models.Post{}, &models.ExpertiseService{}, &models.PujaService{}, &models.OtherserviceService{}, models.PujaServiceDuration{}, models.PujaServicePrice{}, models.Availability{}, models.DateTime{}, models.Verification{}, models.BookPuja{}, models.FrontPageLoader{}, models.PujaServiceVideo{}).Error
-			if err != nil {
-				 log.Fatal("error occured : ", err )
-			 }
-		
-			err = db.Debug().Model(&models.Post{}).AddForeignKey("author_id","users(id)","cascade","cascade").Error
-			if err != nil {
-				log.Fatal("error occured : ", err )
-			}
-		
-			/*
-			 for i := range users {
-				err = db.Debug().Model(&models.User{}).Create(&users[i]).Error
-				if err != nil {
-					log.Fatal("error occured : ", err )
-				}
-				posts[i].AuthorID = users[i].ID
-				err = db.Debug().Model(&models.User{}).Create(&posts[i]).Error
-				if err != nil {
-					log.Fatal("error occured : ", err )
-				}
-				
-			 }*/
-		
-		}`)
+}`)
+
+//LoadContent is a var
+var LoadContent = []byte(
+`
+package auto
+
+import (
+	"automatepi/database"
+	"automatepi/models"
+	//"automatepi/utils/console"
+	"log"
+)
+//Load is
+func Load()  {
+	db, err := database.Connect()
+	if err != nil {
+		log.Fatal("this is an error :", err)
+	}
+	defer db.Close()
+
+	// err = db.Debug().DropTableIfExists(&models.User{}).Error
+	// if err != nil {
+	// 	log.Fatal("this is an error :", err)
+	// }
+
+	err = db.Debug().AutoMigrate(&models.User{}).Error
+	if err != nil {
+		 log.Fatal("error occured : ", err )
+	 }
+
+
+}`)
 var DBContent = []byte(
-	`package database
+`
+package database
 
-	import (
-		"api/config"
-		"github.com/jinzhu/gorm"
-		_ "github.com/jinzhu/gorm/dialects/mysql"
-	)
-	
-	func Connect() (*gorm.DB, error) {
-		db, err := gorm.Open(config.DBDRIVER, config.DBURL)
-		if err != nil {
-			return nil, err
-		}
-		return db, nil
-	
-	}`)
+import (
+	"automatepi/config"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
+)
+
+func Connect() (*gorm.DB, error) {
+	db, err := gorm.Open(config.DBDRIVER, config.DBURL)
+	if err != nil {
+		return nil, err
+	}
+	return db, nil
+
+}
+`)
 
 var ConfigContent = []byte(
 `
@@ -443,7 +432,7 @@ func Load() {
 	if err != nil {
 		log.Fatal("Error is : ", err)
 	}
-	PORT, err = strconv.Atoi(os.Getenv("API_PORT")) 
+	PORT, err = strconv.Atoi(os.Getenv("automatepi_PORT")) 
 
 	if err != nil {
 		PORT = 8080
@@ -451,7 +440,7 @@ func Load() {
 	DBDRIVER = os.Getenv("DB_DRIVER")
 	DBURL = fmt.Sprintf("%s:%s@(%s)/%s?charset=utf8&parseTime=True&loc=Local", os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_HOST"),os.Getenv("DB_NAME"))
 
-	SECRETKEY = []byte(os.Getenv("API_SECRET"))
+	SECRETKEY = []byte(os.Getenv("automatepi_SECRET"))
 
 	STOREURL = []byte(os.Getenv("STORE_URL"))
 
@@ -459,16 +448,16 @@ func Load() {
 }`)
 
 var UserControllerContent = []byte(
-	`
-	package controllers
+`
+package controllers
 
 import (
-	"api/auth"
-	"api/database"
-	"api/models"
-	"api/repository"
-	"api/repository/crud"
-	"api/responses"
+	"automatepi/auth"
+	"automatepi/database"
+	"automatepi/models"
+	"automatepi/repository"
+	"automatepi/repository/crud"
+	"automatepi/responses"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -666,7 +655,7 @@ var UserModelContent = []byte(
 	`package models
 
 	import (
-		"api/security"
+		"automatepi/security"
 		"errors"
 		"html"
 		"log"
@@ -679,12 +668,12 @@ var UserModelContent = []byte(
 	
 	//User is a struct
 	type User struct {
-		ID        uint32    replace gorm:"primary_key;auto_increment" json:"id" replace
-		UserName  string    replace gorm:"size:20;not null;unique" json:"username" replace
-		Email     string    replace gorm:"size:50;not null;unique" json:"email" replace
-		Password  string    replace gorm:"size:60;not null" json:"password" replace
-		CreatedAt time.Time replace gorm:"" json:"created_at" replace
-		UpdatedAt time.Time replace gorm:"" json:"updated_at" replace
+		ID        uint32    *replace*gorm:"primary_key;auto_increment" json:"id"*replace*
+		UserName  string    *replace*gorm:"size:20;not null;unique" json:"username"*replace*
+		Email     string    *replace*gorm:"size:50;not null;unique" json:"email"*replace*
+		Password  string    *replace*gorm:"size:60;not null" json:"password"*replace*
+		CreatedAt time.Time *replace*gorm:"" json:"created_at"*replace*
+		UpdatedAt time.Time *replace*gorm:"" json:"updated_at"*replace*
 		
 	}
 	
@@ -767,7 +756,7 @@ var UserModelContent = []byte(
 var RepositoryUserContent = []byte(
 	`package repository
 
-	import "api/models"
+	import "automatepi/models"
 	
 	type UserRepository interface {
 		Save(models.User) (models.User, error)
@@ -781,8 +770,8 @@ var RepositoryUserCRUDContent = []byte(
 	`package crud
 
 	import (
-		"api/models"
-		"api/utils/channels"
+		"automatepi/models"
+		"automatepi/utils/channels"
 		"errors"
 	
 		"github.com/jinzhu/gorm"
@@ -920,7 +909,7 @@ var JSONContent = []byte(
 	func ERROR(w http.ResponseWriter, statusCode int, err error) {
 		if err != nil {
 			JSON(w, statusCode, struct {
-				Error string replace json:"error" replace
+				Error string *replace*json:"error"*replace*
 			}{
 				Error: err.Error(),
 			})
@@ -963,37 +952,40 @@ func Pretty(data interface{}) {
 }`)
 
 var ChannelsContent = []byte(
-	`package channels
+`
+package channels
 
-	func OK (done chan bool) bool {
-		select {
-		case ok := <-done:
-			if ok {
-				return true
-			}
+func OK (done chan bool) bool {
+	select {
+	case ok := <-done:
+		if ok {
+			return true
 		}
-		return false
-	}`)
+	}
+	return false
+}
+`)
 
 var DockerContent = []byte(
-	`FROM golang:latest
-
-	RUN mkdir /appserver/
-	ADD . /appserver/
-	WORKDIR /appserver/
-	RUN go build -o main .
-	CMD ["/appserver/main"]`)
+`FROM golang:latest
+RUN mkdir /appserver/
+ADD . /appserver/
+WORKDIR /appserver/
+RUN go build -o main .
+CMD ["/appserver/main"]`)
 
 var ENVContent = []byte(
-	`API_PORT=9000
-	API_SECRET=snf78y34jnh9734jhgf894hf
+`
+automatepi_PORT=8080
+automatepi_SECRET=snf78y34jnh9734jhgf894hf
 	
-	#DATABASE CONFIG
-	DB_DRIVER=mysql
-	DB_USER=sanket
-	DB_PASS=Sanket@123
-	DB_NAME=panditji
-	DB_HOST=db.pdjt.prod
+#DATABASE CONFIG
+DB_DRIVER=mysql
+DB_USER=sanket
+DB_PASS=Sanket@123
+DB_NAME=panditji
+DB_HOST=db.pdjt.prod
 	
-	#Store files folder
-	STORE_URL=/Users/sanketwable/desktop`)
+#Store files folder
+STORE_URL=/Users/sanketwable/desktop
+`)

@@ -1,8 +1,8 @@
 
-	package routes
+package routes
 
 import (
-	"api/middlewares"
+	"automatepi/middlewares"
 	"net/http"
 	"github.com/gorilla/mux"
 )
@@ -18,6 +18,7 @@ type Route struct {
 // Load is  a func
 func Load() []Route {
 	routes := usersRoutes
+
 	return routes
 }
 

@@ -1,7 +1,7 @@
 package models
 
 	import (
-		"api/security"
+		"automatepi/security"
 		"errors"
 		"html"
 		"log"
@@ -14,12 +14,12 @@ package models
 	
 	//User is a struct
 	type User struct {
-		ID        uint32    ` gorm:"primary_key;auto_increment" json:"id" `
-		UserName  string    ` gorm:"size:20;not null;unique" json:"username" `
-		Email     string    ` gorm:"size:50;not null;unique" json:"email" `
-		Password  string    ` gorm:"size:60;not null" json:"password" `
-		CreatedAt time.Time ` gorm:"" json:"created_at" `
-		UpdatedAt time.Time ` gorm:"" json:"updated_at" `
+		ID        uint32    `gorm:"primary_key;auto_increment" json:"id"`
+		UserName  string    `gorm:"size:20;not null;unique" json:"username"`
+		Email     string    `gorm:"size:50;not null;unique" json:"email"`
+		Password  string    `gorm:"size:60;not null" json:"password"`
+		CreatedAt time.Time `gorm:"" json:"created_at"`
+		UpdatedAt time.Time `gorm:"" json:"updated_at"`
 		
 	}
 	

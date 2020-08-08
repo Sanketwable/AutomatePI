@@ -1,7 +1,8 @@
 
-	package routes
+package routes
 
 import (
+	"automatepi/controllers"
 	"net/http"
 )
 
@@ -9,31 +10,31 @@ var usersRoutes = []Route {
 	 {
 		Uri: "/users",
 		Method: http.MethodGet,
-		Handler: nil,
+		Handler: controllers.GetUsers,
 		AuthRequired: false,
 	},
 	{
 		Uri: "/users",
 		Method: http.MethodPost ,
-		Handler: nil,
+		Handler: controllers.CreateUser,
 		AuthRequired: false,
 	},
 	{
 		Uri: "/users/{id}",
 		Method: http.MethodGet,
-		Handler: nil,
+		Handler: controllers.GetUser,
 		AuthRequired: false,
 	},
 	{
 		Uri: "/users/{id}",
 		Method: http.MethodPut,
-		Handler: nil,
+		Handler: controllers.UpdateUser,
 		AuthRequired: true,
 	},
 	{
 		Uri: "/users/{id}",
 		Method: http.MethodDelete,
-		Handler: nil,
+		Handler: controllers.DeleteUser,
 		AuthRequired: true,
 	},
 }

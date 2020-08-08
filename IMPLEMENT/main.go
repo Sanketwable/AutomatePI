@@ -1,8 +1,9 @@
 package main
+
 import (
-	"api/server"
-	"fmt")
+	"automatepi/server"
+)
+
 func main() {
-	fmt.Println("server starting")
 	server.Run()
 }

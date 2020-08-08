@@ -1,8 +1,8 @@
 
-	package router
+package router
 
 import (
-	"api/router/routes"
+	"automatepi/router/routes"
 
 	"github.com/gorilla/mux"
 )

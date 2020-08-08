@@ -304,7 +304,7 @@ func CreateDockerfile() {
 	dockerfile.Close()
 }
 func CreateENV() {
-	envfile, err := os.Create("IMPLEMENT/Dockerfile")
+	envfile, err := os.Create("IMPLEMENT/.env")
 	if err != nil {
 		log.Fatal("error occured while making file: ", err)
 	}
@@ -323,7 +323,7 @@ func Replace(fileName string) {
 			log.Fatal(err)
 	}
 
-	output := bytes.Replace(input, []byte("replace"), []byte("`"), -1)
+	output := bytes.Replace(input, []byte("*replace*"), []byte("`"), -1)
 
 	if err = ioutil.WriteFile(fileName, output, 0666); err != nil {
 			fmt.Println(err)

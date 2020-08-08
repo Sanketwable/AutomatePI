@@ -26,7 +26,7 @@ func Load() {
 	if err != nil {
 		log.Fatal("Error is : ", err)
 	}
-	PORT, err = strconv.Atoi(os.Getenv("API_PORT")) 
+	PORT, err = strconv.Atoi(os.Getenv("automatepi_PORT")) 
 
 	if err != nil {
 		PORT = 8080
@@ -34,7 +34,7 @@ func Load() {
 	DBDRIVER = os.Getenv("DB_DRIVER")
 	DBURL = fmt.Sprintf("%s:%s@(%s)/%s?charset=utf8&parseTime=True&loc=Local", os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_HOST"),os.Getenv("DB_NAME"))
 
-	SECRETKEY = []byte(os.Getenv("API_SECRET"))
+	SECRETKEY = []byte(os.Getenv("automatepi_SECRET"))
 
 	STOREURL = []byte(os.Getenv("STORE_URL"))
 

@@ -1,15 +1,21 @@
 
-	package server
+package server
 
 import (
-	"api/router"
+	"automatepi/auto"
+	"automatepi/config"
+	"automatepi/router"
 	"fmt"
 	"log"
 	"net/http"
 )
 
 func Run () {
-	Listen(9000)
+	config.Load()
+	auto.Load()
+	fmt.Printf("\n\tListening.......[::]:%d \n", config.PORT)
+
+	Listen(config.PORT)
 }
 
 func Listen(port int) {

@@ -1,13 +1,13 @@
 
-	package controllers
+package controllers
 
 import (
-	"api/auth"
-	"api/database"
-	"api/models"
-	"api/repository"
-	"api/repository/crud"
-	"api/responses"
+	"automatepi/auth"
+	"automatepi/database"
+	"automatepi/models"
+	"automatepi/repository"
+	"automatepi/repository/crud"
+	"automatepi/responses"
 	"encoding/json"
 	"errors"
 	"fmt"

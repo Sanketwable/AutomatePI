@@ -1,8 +1,8 @@
 package crud
 
 	import (
-		"api/models"
-		"api/utils/channels"
+		"automatepi/models"
+		"automatepi/utils/channels"
 		"errors"
 	
 		"github.com/jinzhu/gorm"

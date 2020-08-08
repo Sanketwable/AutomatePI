@@ -1,6 +1,6 @@
 package repository
 
-	import "api/models"
+	import "automatepi/models"
 	
 	type UserRepository interface {
 		Save(models.User) (models.User, error)
