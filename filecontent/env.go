@@ -1,4 +1,7 @@
+package filecontent
 
+var ENVContent = []byte(
+`
 automatepi_PORT=8080
 automatepi_SECRET=snf78y34jnh9734jhgf894hf
 		
@@ -11,3 +14,5 @@ DB_HOST=db.pdjt.prod
 	
 #Store files folder
 STORE_URL=/Users/sanketwable/desktop
+`)
+	

@@ -1,4 +1,8 @@
+package filecontent
 
+//MiddlwaresContent is a func
+var MiddlewaresContent = []byte(
+	`
 	package middlewares
 	
 	import (
@@ -32,4 +36,5 @@
 			} 
 			next (w, r)
 		}
-	}
+	}`)
+	

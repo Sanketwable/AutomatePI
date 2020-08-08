@@ -1,4 +1,7 @@
+package filecontent
 
+var UserControllerContent = []byte(
+	`
 	package controllers
 	
 	import (
@@ -200,4 +203,4 @@
 			w.Header().Set("Entity", fmt.Sprintf("%d", uid))
 			responses.JSON(w, http.StatusNoContent , "")
 		}(repo)
-	}
+	}`)

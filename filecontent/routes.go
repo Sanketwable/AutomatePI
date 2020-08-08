@@ -1,4 +1,8 @@
+package filecontent
 
+//RoutesContent is a func
+var RoutesContent = []byte(
+	`
 	package routes
 	
 	import (
@@ -45,4 +49,5 @@
 			}
 		}
 		return r
-	}
+	}`)
+	

@@ -1,4 +1,8 @@
+package filecontent
 
+//UserRoutesContent is a func
+var UserRoutesContent = []byte(
+	`
 	package routes
 	
 	import (
@@ -37,4 +41,5 @@
 			Handler: controllers.DeleteUser,
 			AuthRequired: true,
 		},
-	}
+	}`)
+	

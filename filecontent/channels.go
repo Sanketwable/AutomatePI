@@ -1,4 +1,7 @@
+package filecontent
 
+var ChannelsContent = []byte(
+	`
 	package channels
 	
 	func OK (done chan bool) bool {
@@ -10,4 +13,4 @@
 		}
 		return false
 	}
-	
+	`)

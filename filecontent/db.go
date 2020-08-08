@@ -1,4 +1,7 @@
+package filecontent
 
+var DBContent = []byte(
+	`
 	package database
 	
 	import (
@@ -15,4 +18,4 @@
 		return db, nil
 	
 	}
-	
+	`)

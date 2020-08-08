@@ -1,4 +1,8 @@
+package filecontent
 
+//TokenContent is a variable
+var TokenContent = []byte(
+	`
 	package auth
 	
 	import (
@@ -81,4 +85,4 @@
 				return uint32(uid), nil
 		}
 		return 0, nil
-	}
+	}`)

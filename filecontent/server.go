@@ -1,4 +1,8 @@
+package filecontent
 
+//ServerContent is a func
+var ServerContent = []byte(
+	`
 	package server
 	
 	import (
@@ -25,4 +29,4 @@
 			log.Fatal("error is : ", err)
 		}
 	}
-	
+	`)

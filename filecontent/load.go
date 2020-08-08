@@ -1,4 +1,8 @@
+package filecontent
 
+//LoadContent is a var
+var LoadContent = []byte(
+	`
 	package auto
 	
 	import (
@@ -26,4 +30,4 @@
 		 }
 	
 	
-	}
+	}`)

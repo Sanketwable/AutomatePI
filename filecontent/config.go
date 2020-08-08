@@ -1,4 +1,7 @@
+package filecontent
 
+var ConfigContent = []byte(
+	`
 	package config
 	
 	import (
@@ -39,4 +42,5 @@
 		STOREURL = []byte(os.Getenv("STORE_URL"))
 	
 		
-	}
+	}`)
+	

@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+var models [][]string
+
 // GetModels is a func
 func GetModels() {
 	file, err := ioutil.ReadFile("json.auto")
@@ -19,7 +21,7 @@ func GetModels() {
 	// fmt.Println(NumberOfModels)
 	// fmt.Println(fileString)
 
-	Models := make([][]string, NumberOfModels)
+	dummyModels := make([][]string, NumberOfModels)
 
 	ModelsArray := strings.Fields(fileString)
 	ModelsEndpoint := ModelsArray[1]
@@ -29,11 +31,13 @@ func GetModels() {
 	modelstart := modelStart(ModelsArray)
 
 	for i := 0; i < NumberOfModels; i++ {
-		Models[i] = append(Models[i], string(ModelsArray[3*i+modelstart]))
-		Models[i] = append(Models[i], string(ModelsArray[3*i+1+modelstart]))
-		Models[i] = append(Models[i], string(ModelsArray[3*i+2+modelstart]))
+		dummyModels[i] = append(dummyModels[i], string(ModelsArray[3*i+modelstart+1]))
+		dummyModels[i] = append(dummyModels[i], string(ModelsArray[3*i+2+modelstart]))
+		dummyModels[i] = append(dummyModels[i], string(ModelsArray[3*i+3+modelstart]))
 	}
-	fmt.Println("models are: ", Models)
+	//fmt.Println("models are: ", dummyModels)
+
+	models = dummyModels
 
 }
 
@@ -55,4 +59,8 @@ func modelStart(file []string) int {
 		}
 	}
 	return 0
+}
+
+func GetModelData() [][]string {
+	return models
 }

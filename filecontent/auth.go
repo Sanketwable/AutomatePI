@@ -1,4 +1,7 @@
-package auth
+package filecontent
+	//AuthContent is a variable
+	var AuthContent = []byte(
+		`package auth
 		
 		import (
 			"automatepi/database"
@@ -44,4 +47,4 @@ package auth
 			}
 			return "", err
 		
-		}
+		}`)

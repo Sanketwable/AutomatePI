@@ -1,4 +1,8 @@
+package filecontent
 
+	//DataContent is a var
+	var DataContent = []byte(
+		`
 		package auto
 		
 		import "automatepi/models"
@@ -10,4 +14,4 @@
 				Password: "SanketWable@123",
 			},
 		
-		}
+		}`)

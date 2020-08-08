@@ -2,6 +2,7 @@ package main
 
 import (
 	"AutomatePI/createfile"
+	"AutomatePI/filecontent"
 	"AutomatePI/getauto"
 	"os"
 )
@@ -47,8 +48,6 @@ func main() {
 	createfile.CreateDockerfile()
 	createfile.CreateENV()
 
-
-
-	
+	filecontent.UserModels()
 
 }
