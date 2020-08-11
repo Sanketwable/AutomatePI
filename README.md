@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="/Images/logo2.png" width="2000" title="Logo">
+  <img src="/Images/logo2.png" width="500" title="Logo">
 </p>
 
 # AutomatePI
